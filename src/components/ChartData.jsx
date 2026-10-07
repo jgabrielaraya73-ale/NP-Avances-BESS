@@ -7,6 +7,10 @@ export default function ChartData({ families = [], sistemas = [], puntasMTData =
 
   const visibleFamilies = families.filter((f) => f.familyName !== 'Otras Tareas');
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   const filteredSistemas = sistemas.map((sis) => {
     const filteredDisciplinas = sis.disciplinas.map((disc) => {
       const filteredGrupos = disc.grupos.map((grp) => {
@@ -67,20 +71,59 @@ export default function ChartData({ families = [], sistemas = [], puntasMTData =
 
   return (
     <div className="space-y-8">
+      {/* Estilos CSS especiales para la impresión a PDF */}
+      <style>{`
+        @media print {
+          /* Oculta botones de interacción y barras de filtro en el PDF */
+          .no-print {
+            display: none !important;
+          }
+          /* Ajusta contenedores para que encajen perfectamente en hoja impresa */
+          body {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+          }
+          .print-break-inside-avoid {
+            break-inside: avoid;
+          }
+        }
+      `}</style>
+
       {/* ---------------- TARJETAS SUPERIORES DE FAMILIAS ---------------- */}
       <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xs font-bold tracking-widest text-slate-300 uppercase">
             Resumen General por Tareas Principales
           </h2>
-          {selectedFamily !== 'TODAS' && (
+          
+          {/* Grupo de botones a la derecha */}
+          <div className="flex items-center gap-3 no-print">
             <button
-              onClick={() => setSelectedFamily('TODAS')}
-              className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-lg hover:bg-amber-500/20 hover:scale-105 transition-all duration-200 font-semibold"
+              onClick={handlePrint}
+              className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3.5 py-1.5 rounded-lg hover:bg-emerald-500/20 hover:scale-105 transition-all duration-200 font-bold flex items-center gap-1.5 shadow-sm"
+              title="Descargar o imprimir reporte gerencial en PDF"
             >
-              Ver Todo
+              <svg 
+                className="w-3.5 h-3.5" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24" 
+                strokeWidth="2.5"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              Descargar Reporte para CP
             </button>
-          )}
+
+            {selectedFamily !== 'TODAS' && (
+              <button
+                onClick={() => setSelectedFamily('TODAS')}
+                className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-lg hover:bg-amber-500/20 hover:scale-105 transition-all duration-200 font-semibold"
+              >
+                Ver Todo
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4">
@@ -157,8 +200,8 @@ export default function ChartData({ families = [], sistemas = [], puntasMTData =
         <PuntasMTChart puntasMTData={puntasMTData} />
       ) : (
         <div className="space-y-6">
-          {/* BARRA DE FILTROS POR SISTEMA */}
-          <div className="bg-[#FAF8F5]/80 backdrop-blur-md border border-amber-900/10 rounded-xl p-4 shadow-sm flex flex-wrap items-center gap-3">
+          {/* BARRA DE FILTROS POR SISTEMA (SE OCULTA EN EL PDF) */}
+          <div className="bg-[#FAF8F5]/80 backdrop-blur-md border border-amber-900/10 rounded-xl p-4 shadow-sm flex flex-wrap items-center gap-3 no-print">
             <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
               Categoría Principal (Sistema):
             </span>
@@ -194,7 +237,7 @@ export default function ChartData({ families = [], sistemas = [], puntasMTData =
             </div>
           ) : (
             filteredSistemas.map((sis, sIdx) => (
-              <div key={sIdx} className="space-y-4">
+              <div key={sIdx} className="space-y-4 print-break-inside-avoid">
                 {/* Título del Sistema */}
                 <div className="flex justify-between items-center bg-[#FAF8F5] border border-amber-900/10 rounded-xl px-6 py-4 shadow-sm">
                   <h2 className="text-xl font-black text-amber-700 tracking-wide uppercase">
@@ -227,10 +270,10 @@ export default function ChartData({ families = [], sistemas = [], puntasMTData =
                       {disc.grupos.map((grp, gIdx) => (
                         <div 
                           key={gIdx} 
-                          className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-sm hover:shadow-xl hover:border-amber-400/60 hover:-translate-y-1 transition-all duration-300 ease-out group"
+                          className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-sm hover:shadow-xl hover:border-amber-400/60 hover:-translate-y-1 transition-all duration-300 ease-out group print-break-inside-avoid"
                         >
                           <div>
-                            {/* Header Tarjeta con Icono Profesional de Avance (Curva Ascendente) */}
+                            {/* Header Tarjeta */}
                             <div className="flex justify-between items-center mb-2">
                               <div className="flex items-center gap-2">
                                 <div className="p-1.5 bg-amber-100/80 rounded-lg text-amber-700 border border-amber-200/60 group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors duration-200">
